@@ -2,6 +2,8 @@ const http = require('http');
 const request = require('request');
 const httpProxy = require('http-proxy');
 
+const web_o = Object.values(require('http-proxy/lib/http-proxy/passes/web-outgoing'));
+
 const server = http.createServer((req, res) => {
     const target = process.env.PROXIED_URL || 'http://localhost:9008';
     const proxy = httpProxy.createProxyServer({
@@ -9,6 +11,9 @@ const server = http.createServer((req, res) => {
         secure: false
     });
     proxy.on('proxyRes', (proxyRes, req, res) => {
+        for (var i = 0; i < web_o.length; i++) {
+            if (web_o[i](req, res, proxyRes, {})) { break; }
+        }
         if (req.method === 'HEAD' && proxyRes.statusCode !== 200) {
             request({
                 url: `${target}${req.url}`,
@@ -33,8 +38,9 @@ if (!process.env.PROXIED_URL) {
             res.end();
         } else {
             res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.write('request successfully proxied to: ' + req.url + '\n' + JSON.stringify(req.headers, true, 2));
-            res.end();
+            res.write('request successfully proxied to: ' + req.url + '\n' + JSON.stringify(req.headers, true, 2) + '\n');
+            req.pipe(res);
+            //res.end();
         }
     }).listen(9008);
 }
