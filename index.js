@@ -6,11 +6,7 @@ const server = http.createServer((req, res) => {
     const target = process.env.PROXIED_URL || 'http://localhost:9008';
     const proxy = httpProxy.createProxyServer({
         selfHandleResponse: true,
-        secure: false,
-        xfwd: true
-    });
-    proxy.on('proxyReq', (proxyReq, req, res) => {
-        proxiedReq = proxyReq;
+        secure: false
     });
     proxy.on('proxyRes', (proxyRes, req, res) => {
         if (req.method === 'HEAD' && proxyRes.statusCode !== 200) {
