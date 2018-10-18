@@ -9,3 +9,5 @@ This is an HTTP proxy server that will provide support for `HEAD` in case the ba
 `PROXIED_URL` must not end with a `/` as the URI being passed to it will contain the leading `/`.  Not specifying the PROXIED_URL will start up a demo proxy server on port 9008.
 
 `PORT` can be set to override the default port.
+
+I basically wrote this as a workaround for [NEXUS-12684](https://issues.sonatype.org/browse/NEXUS-12684) which has been open for over a year now.
