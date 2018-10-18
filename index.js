@@ -29,16 +29,18 @@ const server = http.createServer((req, res) => {
     proxy.web(req, res, { target });
 });
 
-// Test server that returns 404 on HEAD requests
-http.createServer(function (req, res) {
-    if (req.method === 'HEAD') {
-        res.writeHead(404, {});
-        res.end();
-    } else {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.write('request successfully proxied to: ' + req.url + '\n' + JSON.stringify(req.headers, true, 2));
-        res.end();
-    }
-}).listen(9008);
+if (!process.env.PROXIED_URL) {
+    // Test server that returns 404 on HEAD requests
+    http.createServer(function (req, res) {
+        if (req.method === 'HEAD') {
+            res.writeHead(404, {});
+            res.end();
+        } else {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.write('request successfully proxied to: ' + req.url + '\n' + JSON.stringify(req.headers, true, 2));
+            res.end();
+        }
+    }).listen(9008);
+}
 
 server.listen(process.env.PORT || 5050);
