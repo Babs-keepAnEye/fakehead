@@ -1,6 +1,12 @@
 const http = require('http');
 const request = require('request');
 const httpProxy = require('http-proxy');
+const signals = {
+    'SIGHUP': 1,
+    'SIGINT': 2,
+    'SIGTERM': 15
+};
+
 
 const web_o = Object.values(require('http-proxy/lib/http-proxy/passes/web-outgoing'));
 
@@ -46,3 +52,19 @@ if (!process.env.PROXIED_URL) {
 }
 
 server.listen(process.env.PORT || 5050);
+
+// Do any necessary shutdown logic for our application here
+const shutdown = (signal, value) => {
+    console.log("shutdown!");
+    server.close(() => {
+        console.log(`server stopped by ${signal} with value ${value}`);
+        process.exit(128 + value);
+    });
+};
+
+Object.keys(signals).forEach((signal) => {
+    process.on(signal, () => {
+        console.log(`process received a ${signal} signal`);
+        shutdown(signal, signals[signal]);
+    });
+});
